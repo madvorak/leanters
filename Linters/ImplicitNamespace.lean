@@ -8,8 +8,6 @@ Original code written by Damiano Testa.
 
 The "implicitNamespace" linter emits a warning when a declaration uses the "implicit namespace" feature, see explanation:
 https://github.com/leanprover/lean4/issues/6855
-
-Note that the linter has some false positives, notably, when `set_option` is called before a declaration containing `.`.
 -/
 
 namespace Mathlib.Linter
@@ -64,7 +62,6 @@ def implicitNamespaceLinter : Linter where run := withSetOptionIn fun stx ↦ do
     withScope (fun _ =>
       {(default : Scope) with
           header := s.header
-          --opts := ⟨[⟨`autoImplicit, false⟩]⟩
           opts := s.opts
           currNamespace := s.currNamespace
           openDecls := s.openDecls
