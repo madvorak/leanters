@@ -1,5 +1,5 @@
 import Lean.Elab.Command
-open Lean Elab Command
+open   Lean Elab Command
 
 /-!
 # The "implicit namespace" linter
@@ -64,7 +64,8 @@ def implicitNamespaceLinter : Linter where run := withSetOptionIn fun stx ↦ do
     withScope (fun _ =>
       {(default : Scope) with
           header := s.header
-          -- Omitting `opts` seems to be fixing some issues.  It may cause other issues, though.
+          --opts := ⟨[⟨`autoImplicit, false⟩]⟩
+          opts := s.opts
           currNamespace := s.currNamespace
           openDecls := s.openDecls
           levelNames := s.levelNames
