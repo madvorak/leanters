@@ -44,18 +44,18 @@ def implicitNamespaceLinter : Linter where run := withSetOptionIn fun stx ↦ do
   if (← get).messages.hasErrors then
     return
   let some ID := stx.find? (·.isOfKind ``Parser.Command.declId) | return
+  -- do not test declarations with "atomic" names
+  if isMonolithic ID.getId then
+    return
+  -- do not test declarations of inductive types
+  if ((stx.getArg 1).getArg 0).getAtomVal == "inductive" then
+    return
   let stx' : Syntax := stx.replaceM (m := Id) fun s =>
     if s.getKind == ``Parser.Command.declId then
       some (s.modifyArg 0 (fun i => mkIdentFrom i (prepend i.getId)))
     else
       none
   let newID := ((stx'.find? (·.isOfKind ``Parser.Command.declId)).getD default)[0]
-  -- do not test declarations with "atomic" names
-  if isMonolithic newID.getId then
-    return
-  -- do not test declarations of inductive types
-  if ((stx'.getArg 1).getArg 0).getAtomVal == "inductive" then
-    return
   let oldState ← get
   let s ← getScope
   let (errors?, report) := ← do
