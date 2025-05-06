@@ -69,10 +69,10 @@ def implicitNamespaceLinter : Linter where run := withSetOptionIn fun stx ↦ do
   if errors? then
     for r in report do
       Linter.logLint linter.implicitNamespace ID
-        m!"'{ID[0]}' exploits the implicit namespace '{ID[0].getId.getRoot}' for {r}.\n"
+        m!"'{ID[0]}' exploits an implicit namespace for {r}.\n"
     if report.isEmpty then
       Linter.logLint linter.implicitNamespace ID
-        m!"Unknown possible problem in '{ID[0]}'.\n"
+        m!"Possible unknown problem in '{ID[0]}'.\n"
 
 initialize addLinter implicitNamespaceLinter
 
