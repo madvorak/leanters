@@ -58,34 +58,21 @@ def implicitNamespaceLinter : Linter where run := withSetOptionIn fun stx ↦ do
     return
   let oldState ← get
   let s ← getScope
-  let (errors?, report) ←
-    withScope (fun _ =>
-      {(default : Scope) with
-          header := s.header
-          opts := s.opts
-          currNamespace := s.currNamespace
-          openDecls := s.openDecls
-          levelNames := s.levelNames
-          varDecls := s.varDecls
-          varUIds := s.varUIds
-          includedVars := s.includedVars
-          omittedVars := s.omittedVars
-          isNoncomputable := s.isNoncomputable
-        }) do
-      elabCommand stx'
-      let msgs := (← get).messages
-      let allErrors := (← msgs.reported.toArray.mapM (·.toString))
-      let unknownId := allErrors.filterMap
-        (if let [_, id] := ·.splitOn "unknown identifier" then some id.trim else none)
-      return (msgs.hasErrors, unknownId)
+  let (errors?, report) := ← do
+    elabCommand stx'
+    let msgs := (← get).messages
+    let allErrors := (← msgs.reported.toArray.mapM (·.toString))
+    let unknownId := allErrors.filterMap
+      (if let [_, id] := ·.splitOn "unknown identifier" then some id.trim else none)
+    return (msgs.hasErrors, unknownId)
   set oldState
   if errors? then
     for r in report do
       Linter.logLint linter.implicitNamespace ID
-        m!"'{ID[0]}' uses the implicit namespace '{ID[0].getId.getRoot}' for {r}.\n"
+        m!"'{ID[0]}' exploits the implicit namespace '{ID[0].getId.getRoot}' for {r}.\n"
     if report.isEmpty then
       Linter.logLint linter.implicitNamespace ID
-        m!"Unknown error in '{ID[0]}', possibly an implicit namespace '{ID[0].getId.getRoot}'.\n"
+        m!"Unknown possible problem in '{ID[0]}'.\n"
 
 initialize addLinter implicitNamespaceLinter
 
